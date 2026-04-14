@@ -19,6 +19,5 @@ fastapi
 uvicorn
 pydantic
 python-multipart
+spacy==3.7.2
 
-pip install spacy;
-python -m spacy download en_core_web_lg ;
