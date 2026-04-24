@@ -9,9 +9,7 @@ class ResumeKeywordExtractor:
     """
 
     def __init__(self):
-        # --------------------------------------------------
-        # TECH KEYWORDS (NORMALIZED)
-        # --------------------------------------------------
+       
         self.tech_keywords = {
             "languages": {
                 "python", "java", "javascript", "typescript", "c++", "c#", "ruby",

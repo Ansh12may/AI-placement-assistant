@@ -38,7 +38,7 @@ class JobSearchAgent:
         # Extract skills from resume to improve search query
         skills = resume_data.get("skills", []) if resume_data else []
 
-        # 1️⃣ Try SerpAPI (real jobs)
+        #  Try SerpAPI (real jobs)
         jobs = []
         for platform in platforms:
             jobs.extend(
@@ -118,3 +118,12 @@ Return JSON ONLY:
                 "Add measurable impact to experience"
             ]
         }
+    
+
+
+
+
+
+
+
+

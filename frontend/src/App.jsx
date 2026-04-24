@@ -8,7 +8,7 @@ import Signup        from "./landing_page/signup/Signup";
 import AuthCallback  from "./landing_page/AuthCallback";
 import ScanResult    from "./pages/ScanResult";
 import Jobs          from "./pages/Jobs";
-import ResumePage    from "./pages/resume_page";
+import ResumePage    from "./pages/ResumePage";
 import InterviewPage from "./pages/Interview_page";
 import JobPage       from "./pages/job_page";
 import SavedJobs     from "./pages/SavedJobs";
@@ -37,9 +37,9 @@ function App() {
         <Route path="/scan-result" element={
           <ProtectedRoute><ScanResult /></ProtectedRoute>
         } />
-        <Route path="/jobs" element={
+        {/* <Route path="/jobs" element={
           <ProtectedRoute><Jobs /></ProtectedRoute>
-        } />
+        } /> */}
         <Route path="/interview"  element={
           <ProtectedRoute><InterviewPage /></ProtectedRoute>
         } />
@@ -47,7 +47,7 @@ function App() {
           <ProtectedRoute><InterviewPage /></ProtectedRoute>
         } />
         <Route path="/job-search" element={
-          <ProtectedRoute><JobPage /></ProtectedRoute>
+          <ProtectedRoute><Jobs /></ProtectedRoute>
         } />
         <Route path="/saved-jobs" element={
           <ProtectedRoute><SavedJobs /></ProtectedRoute>

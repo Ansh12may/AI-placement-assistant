@@ -31,9 +31,8 @@ class ResumeAgent:
                 print(f"[WARN] LLM initialization failed: {e}")
                 self.llm_available = False
 
-    # --------------------------------------------------
     # PUBLIC API
-    # --------------------------------------------------
+    
     def analyze_resume(self, resume_data: dict):
 
         if not resume_data:
@@ -56,9 +55,8 @@ class ResumeAgent:
 
             return self._basic_analysis(resume_data)
 
-    # --------------------------------------------------
+    
     # BUILD CHAT MESSAGES
-    # --------------------------------------------------
     def _build_messages(self, resume_data):
 
         skills = resume_data.get("skills", [])

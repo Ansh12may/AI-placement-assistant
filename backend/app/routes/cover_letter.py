@@ -28,30 +28,32 @@ class SaveCoverLetterRequest(BaseModel):
 
 @router.post("/generate")
 async def generate_cover_letter(data: CoverLetterRequest, request: Request):
-    get_user_id(request)  # verify auth
+    get_user_id(request)
+    
+    # TRY GEMINI
     try:
         from app.agents.cover_letter_agent import CoverLetterAgent
         result = CoverLetterAgent().generate(
             job_title=data.job_title, company=data.company,
             job_description=data.job_description, user_name=data.user_name,
-            skills=data.user_skills, tone=data.tone,
+            skills=data.user_skills, tone=data.tone
         )
-        return {"cover_letter": result}
-    except ImportError:
+        return {"cover_letter": result}  # Gemini success
+        
+    # CATCH ANY GEMINI FAILURE → OPENAI
+    except Exception:  # ImportError, ModelError, APIError, etc.
+        print("🔄 Gemini failed → OpenAI")
+        
         from openai import OpenAI
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        prompt = f"""Write a {data.tone} cover letter for:
-Job Title: {data.job_title}
-Company: {data.company}
-Candidate: {data.user_name or "the candidate"}
-Skills: {", ".join(data.user_skills) if data.user_skills else "not specified"}
-Job Description: {data.job_description}
-Write 3-4 paragraphs. Return only the cover letter text."""
         response = client.chat.completions.create(
-            model="gpt-4o-mini", max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}]
+            model="gpt-4o-mini",
+            messages=[{
+                "role": "user", 
+                "content": f"Write {data.tone} cover letter for {data.job_title} at {data.company}. Skills: {data.user_skills}. JD: {data.job_description}"
+            }]
         )
-        return {"cover_letter": response.choices[0].message.content}
+        return {"cover_letter": response.choices[0].message.content}  # ✅ OpenAI success
 
 @router.post("/save")
 async def save_cover_letter(data: SaveCoverLetterRequest, request: Request):

@@ -1,6 +1,5 @@
 const BASE_URL = import.meta.env.VITE_API_URL ?? "";
 
-// ─── Token helpers ────────────────────────────────────────
 export function getToken()          { return localStorage.getItem("token"); }
 export function setToken(token)     { localStorage.setItem("token", token); }
 export function clearToken()        { localStorage.removeItem("token"); }
@@ -53,10 +52,14 @@ export async function getCurrentUser() {
 }
 
 // Google OAuth — browser redirect, token comes back via URL param
-export function loginWithGoogle() {
-  window.location.href = `${BASE_URL}/api/auth/google`;
-}
+// export function loginWithGoogle() {
+//   window.location.href = `${BASE_URL}/api/auth/google`;
+// }
 
+
+export function loginWithGoogle() {
+  window.location.href = "http://127.0.0.1:8000/api/auth/google";
+}
 // Called from /auth/callback page after Google redirect
 export function storeTokenFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -122,6 +125,7 @@ export async function getSavedJobs() {
   const data = await req("/api/jobs/saved");
   return data.jobs ?? [];
 }
+
 
 // ─── Application Tracker ─────────────────────────────────
 

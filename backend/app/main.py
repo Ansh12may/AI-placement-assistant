@@ -16,7 +16,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# ✅ ADD CORS FIRST
+# ADD CORS FIRST
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -32,7 +32,7 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix="/api")
 
-# ✅ THEN ROUTERS
+
 app.include_router(resume.router, prefix="/api")
 app.include_router(jobs.router, prefix="/api")
 app.include_router(interview.router,prefix="/api")

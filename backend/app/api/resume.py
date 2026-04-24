@@ -97,7 +97,6 @@ def calculate_scores(data: dict) -> dict:
         "overall_score":    overall,
     }
 
-#finish
 
 
 
