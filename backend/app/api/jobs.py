@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel
+
 from app.agents.job_matcher import JobSearchAgent
 from app.agents.job_fit_scorer import JobFitScorer
 from app.agents.embeddings import rank_jobs_by_similarity
 
-router = APIRouter(prefix="/jobs", tags=["Jobs"])
-job_agent = JobSearchAgent()
-fit_scorer = JobFitScorer()
+router = APIRouter(
+    prefix="/jobs",
+    tags=["Jobs"]
+)
 
 
 class FitScoreRequest(BaseModel):
@@ -16,82 +18,158 @@ class FitScoreRequest(BaseModel):
 
 @router.post("/search")
 def search_jobs(payload: dict = Body(...)):
-    """Keyword search — uses job title + skills to query SerpAPI."""
+    """
+    Keyword search using job title + skills to query jobs.
+    """
+
     keywords = payload.get("keywords")
     location = payload.get("location", "India")
-    skills   = payload.get("skills", [])
-    count    = payload.get("count", 9)
+    skills = payload.get("skills", [])
+    count = payload.get("count", 9)
 
     if not keywords:
-        raise HTTPException(status_code=400, detail="keywords required")
+        raise HTTPException(
+            status_code=400,
+            detail="keywords required"
+        )
 
-    jobs = job_agent.search_jobs(
-        resume_data={"skills": skills},
-        keywords=keywords,
-        location=location,
-        count=count,
-    )
-    return {"success": True, "jobs": jobs}
+    # Lazy initialization (important for Render)
+    job_agent = JobSearchAgent()
+
+    try:
+        jobs = job_agent.search_jobs(
+            resume_data={
+                "skills": skills
+            },
+            keywords=keywords,
+            location=location,
+            count=count,
+        )
+
+        return {
+            "success": True,
+            "jobs": jobs
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Job search failed: {str(e)}"
+        )
 
 
 @router.post("/match")
 def match_jobs(payload: dict = Body(...)):
     """
-    RAG-based job matching.
-    1. Extract job_title + skills from resume_data
-    2. Fetch jobs from SerpAPI using real keywords
-    3. Embed resume + jobs via OpenAI
+    RAG-based job matching
+
+    Steps:
+    1. Extract job title + skills from resume
+    2. Fetch jobs using job title
+    3. Generate embeddings
     4. Rank by cosine similarity
-    5. Return top N with match_score
+    5. Return top matches
     """
+
     resume_data = payload.get("resume_data")
-    location    = payload.get("location", "India")
-    count       = payload.get("count", 9)
+    location = payload.get("location", "India")
+    count = payload.get("count", 9)
 
     if not resume_data:
-        raise HTTPException(status_code=400, detail="resume_data required")
+        raise HTTPException(
+            status_code=400,
+            detail="resume_data required"
+        )
 
-    # ── Fix: use actual job_title from resume, not None ──
-    job_title = resume_data.get("job_title") or "software engineer"
-    skills    = resume_data.get("skills", [])
+    job_title = (
+        resume_data.get("job_title")
+        or "software engineer"
+    )
 
-    # Step 1 — fetch 3x jobs so RAG has enough to rank
+    skills = resume_data.get("skills", [])
+
+    # Lazy initialization (important for Render)
+    job_agent = JobSearchAgent()
+
+    # Step 1: Fetch jobs
     try:
         jobs = job_agent.search_jobs(
             resume_data=resume_data,
-            keywords=job_title,        # ← FIXED: was None
+            keywords=job_title,
             location=location,
-            count=count * 3,
+            count=count * 3,  # fetch extra for ranking
         )
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Job fetch failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Job fetch failed: {str(e)}"
+        )
 
     if not jobs:
-        return {"success": True, "jobs": [], "message": "No jobs found"}
+        return {
+            "success": True,
+            "jobs": [],
+            "message": "No jobs found"
+        }
 
-    # Step 2 — rank by semantic similarity
+    # Step 2: Rank using embeddings
     try:
         ranked = rank_jobs_by_similarity(
             resume_data=resume_data,
             jobs=jobs,
             top_n=count,
         )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Embedding failed: {str(e)}")
 
-    return {"success": True, "jobs": ranked, "total": len(ranked), "method": "rag_embedding"}
+        return {
+            "success": True,
+            "jobs": ranked,
+            "total": len(ranked),
+            "method": "rag_embedding"
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Embedding failed: {str(e)}"
+        )
 
 
 @router.post("/fit-score")
 def score_job_fit(request: FitScoreRequest):
-    """Multi-dimensional fit score between a resume and a job."""
+    """
+    Multi-dimensional job fit scoring
+    between resume and job description.
+    """
+
     if not request.resume_data:
-        raise HTTPException(status_code=400, detail="resume_data is required")
+        raise HTTPException(
+            status_code=400,
+            detail="resume_data is required"
+        )
+
     if not request.job_data:
-        raise HTTPException(status_code=400, detail="job_data is required")
+        raise HTTPException(
+            status_code=400,
+            detail="job_data is required"
+        )
+
+    # Lazy initialization (important for Render)
+    fit_scorer = JobFitScorer()
 
     try:
-        result = fit_scorer.score(request.resume_data, request.job_data)
-        return {"success": True, **result}
+        result = fit_scorer.score(
+            request.resume_data,
+            request.job_data
+        )
+
+        return {
+            "success": True,
+            **result
+        }
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fit scoring failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Fit scoring failed: {str(e)}"
+        )

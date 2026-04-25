@@ -4,17 +4,24 @@ import json
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()
+# load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
+
 LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
 
 
 class InterviewAgent:
 
     def __init__(self):
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
-        self.model = LLM_MODEL
+        api_key = os.getenv("OPENAI_API_KEY")
+
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY is missing")
+
+        self.client = OpenAI(api_key=api_key)
+        self.model = os.getenv("LLM_MODEL", "gpt-4o-mini")
 
     # --------------------------------------------------
     # INTERNAL: Safe JSON parser
