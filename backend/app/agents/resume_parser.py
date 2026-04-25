@@ -19,7 +19,7 @@ LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
 if OPENAI_API_KEY:
     os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
-nlp = spacy.load("en_core_web_sm")    
+nlp = None   
 
 # try:
 #     nlp = spacy.load("en_core_web_sm")
@@ -31,6 +31,10 @@ nlp = spacy.load("en_core_web_sm")
 class ResumeParser:
 
     def __init__(self):
+
+        global nlp
+        if nlp is None:
+            nlp = spacy.load("en_core_web_sm")
 
         self.use_rag = False
 
