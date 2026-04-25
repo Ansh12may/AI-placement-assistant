@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from dotenv import load_dotenv
+load_dotenv()
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import resume
 from app.api import jobs
@@ -7,7 +8,6 @@ from app.api import interview
 from app.routes import auth
 from app.routes import saved_jobs, tracker, cover_letter
 
-load_dotenv()
 
 app = FastAPI(
     title="Placeko Resume Analysis API",

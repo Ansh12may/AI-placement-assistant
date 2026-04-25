@@ -6,14 +6,28 @@ import os
 import numpy as np
 from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+EMBED_MODEL = "text-embedding-3-small" 
 
-EMBED_MODEL = "text-embedding-3-small"  # cheap + high quality
+
+def get_openai_client():
+    """
+    Create OpenAI client only when needed.
+    Prevents Render deployment issues caused by
+    import-time initialization.
+    """
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is missing")
+
+    return OpenAI(api_key=api_key)
+
 
 
 def get_embedding(text: str) -> list[float]:
     """Convert text to embedding vector using OpenAI."""
     text = text.strip().replace("\n", " ")
+    client = get_openai_client()
     response = client.embeddings.create(
         model=EMBED_MODEL,
         input=text,
