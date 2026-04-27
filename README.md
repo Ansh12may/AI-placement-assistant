@@ -4,6 +4,15 @@
 
 AI-powered Placement Assistant for resume analysis, job search, interview preparation, application tracking, and cover letter generation.
 
+Live Deployment
+Frontend (Vercel)
+
+https://ai-placement-assistant-32yb.vercel.app
+
+Backend (Render)
+
+https://ai-placement-assistant-9gvv.onrender.com
+
 ## Overview
 
 Placeko helps students and job seekers streamline their placement and job application journey using AI-driven tools.
