@@ -56,9 +56,8 @@ export async function getCurrentUser() {
 //   window.location.href = `${BASE_URL}/api/auth/google`;
 // }
 
-
 export function loginWithGoogle() {
-  window.location.href = "http://127.0.0.1:8000/api/auth/google";
+  window.location.href = `${BASE_URL}/api/auth/google`;
 }
 // Called from /auth/callback page after Google redirect
 export function storeTokenFromUrl() {
