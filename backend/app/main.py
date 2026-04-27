@@ -21,7 +21,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://your-frontend-domain.com",  # Add later
+        "https://ai-placement-assistant-32yb.vercel.app/",  # Add later
     ],
     allow_credentials=True,
     allow_methods=["*"],
